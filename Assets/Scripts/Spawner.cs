@@ -1,35 +1,48 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private Cube _cube;
-
-    private int _minLifetime = 2;
-    private int _maxLifeTime = 6;
+    [SerializeField] private int _spawnAmount = 20;
+    [SerializeField] private float _repeatRate = 3f;
+    [SerializeField] private int _poolCapacity = 5;
+    [SerializeField] private int _poolMaxSize = 5;
 
     private float _minCoordinateValue = -5f;
     private float _maxCoordinateValue = 5f;
 
-    private void OnEnable() => _cube.Contact += Contact;
+    private Color defaulColor = new(0, 0, 0);
 
-    private void OnDisable()
+    private ObjectPool<Cube> _pool;
+
+    private void Awake()
     {
-        _cube.Contact -= Contact;
-
-        StopCoroutine(nameof(LifeRoutine));
+        _pool = new ObjectPool<Cube>(
+            createFunc: () => Instantiate(_cube),
+            actionOnGet: cube => cube.gameObject.SetActive(true),
+            actionOnRelease: cube => cube.gameObject.SetActive(false),
+            actionOnDestroy: cube => Destroy(cube.gameObject),
+            collectionCheck: false,
+            defaultCapacity: _poolCapacity,
+            maxSize: _poolMaxSize
+            );
     }
 
-    private void Contact()
+    private void Start()
     {
-        StartCoroutine(nameof(LifeRoutine));
-
-        CreateCube();
+        InvokeRepeating(nameof(Spawn), 0f, _repeatRate);
     }
 
-    private void CreateCube()
+    private void Spawn()
     {
-        Instantiate(_cube, GetPosition(), Quaternion.identity);
+        for (int i = 0; i < _spawnAmount; i++)
+        {
+            var cube = _pool.Get();
+            cube.transform.position = GetPosition();
+            cube.SetColor(defaulColor);
+            cube.Init(RemoveToPool);
+        }
     }
 
     private Vector3 GetPosition()
@@ -41,10 +54,10 @@ public class Spawner : MonoBehaviour
         return new Vector3(coordinatX, coordinatY, coordinatZ);
     }
 
-    private IEnumerator LifeRoutine()
+    private void RemoveToPool(Cube cube)
     {
-        yield return new WaitForSecondsRealtime(Random.Range(_minLifetime, _maxLifeTime));
-
-        Destroy(gameObject);
+        _pool.Release(cube);
     }
+
+    private Color CreateRandomColor => new(Random.value, Random.value, Random.value);
 }
