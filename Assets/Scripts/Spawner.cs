@@ -9,10 +9,10 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
 
-    private float _minCoordinateValue = -5f;
-    private float _maxCoordinateValue = 5f;
+    private readonly float _minCoordinateValue = -5f;
+    private readonly float _maxCoordinateValue = 5f;
 
-    private Color defaulColor = new(0, 0, 0);
+    private readonly Color _defaultColor = new(0, 0, 0);
 
     private ObjectPool<Cube> _pool;
 
@@ -26,7 +26,7 @@ public class Spawner : MonoBehaviour
             collectionCheck: false,
             defaultCapacity: _poolCapacity,
             maxSize: _poolMaxSize
-            );
+        );
     }
 
     private void Start()
@@ -40,24 +40,22 @@ public class Spawner : MonoBehaviour
         {
             var cube = _pool.Get();
             cube.transform.position = GetPosition();
-            cube.SetColor(defaulColor);
+            cube.SetColor(_defaultColor);
             cube.Init(RemoveToPool);
         }
     }
 
     private Vector3 GetPosition()
     {
-        float coordinatX = Random.Range(_minCoordinateValue, _maxCoordinateValue);
-        float coordinatZ = Random.Range(_minCoordinateValue, _maxCoordinateValue);
-        float coordinatY = 6;
+        float coordinateX = Random.Range(_minCoordinateValue, _maxCoordinateValue);
+        float coordinateZ = Random.Range(_minCoordinateValue, _maxCoordinateValue);
+        float coordinateY = 6;
 
-        return new Vector3(coordinatX, coordinatY, coordinatZ);
+        return new Vector3(coordinateX, coordinateY, coordinateZ);
     }
 
     private void RemoveToPool(Cube cube)
     {
         _pool.Release(cube);
     }
-
-    private Color CreateRandomColor => new(Random.value, Random.value, Random.value);
 }

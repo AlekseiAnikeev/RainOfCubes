@@ -32,7 +32,7 @@ public class Cube : MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Spawner spawner))
         {
             if (_isContact)
-            { 
+            {
                 _renderer.material.color = CreateRandomColor;
 
                 _isContact = false;
@@ -53,5 +53,6 @@ public class Cube : MonoBehaviour
         _contact(this);
     }
 
-    private Color CreateRandomColor => new(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+    private Color CreateRandomColor =>
+        new(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
 }
