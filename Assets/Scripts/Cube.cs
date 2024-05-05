@@ -29,13 +29,17 @@ public class Cube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.TryGetComponent(out Spawner spawner))
         {
             if (_isContact)
-            {
+            { 
                 _renderer.material.color = CreateRandomColor;
 
                 _isContact = false;
+            }
+            else
+            {
+                return;
             }
 
             Invoke(nameof(RemoveToPool), UnityEngine.Random.Range(_minLifetime, _maxLifeTime));

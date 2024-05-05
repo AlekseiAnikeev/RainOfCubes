@@ -135,8 +135,8 @@ GameObject:
   - component: {fileID: 98843968}
   - component: {fileID: 98843967}
   - component: {fileID: 98843966}
-  - component: {fileID: 98843970}
   - component: {fileID: 98843971}
+  - component: {fileID: 98843970}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Ground
@@ -247,7 +247,7 @@ MonoBehaviour:
   _spawnAmount: 15
   _repeatRate: 2
   _poolCapacity: 5
-  _poolMaxSize: 50
+  _poolMaxSize: 20
 --- !u!65 &98843971
 BoxCollider:
   m_ObjectHideFlags: 0
