@@ -2,8 +2,10 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
-public class Cube : MonoBehaviour
+public class Cube : MonoBehaviour, IColorable
 {
+    private readonly Color _defaultColor = new(0, 0, 255);
+    
     private bool _isContact = true;
 
     private int _minLifetime = 2;
@@ -12,28 +14,34 @@ public class Cube : MonoBehaviour
     private Renderer _renderer;
     private Action<Cube> _contact;
 
-    public void Init(Action<Cube> conatact)
-    {
-        _contact = conatact;
-    }
-
-    public void SetColor(Color color)
-    {
-        _renderer.material.color = color;
-    }
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
     }
 
+    public void Init(Action<Cube> contact)
+    {
+        _contact = contact;
+    }
+
+    public void SetStartColor()
+    {
+        _renderer.material.color = _defaultColor;
+    }
+
+    private void SetColor(Color color)
+    {
+        _renderer.material.color = color;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent(out Spawner spawner))
+        if (collision.gameObject.TryGetComponent(out Ground ground))
         {
             if (_isContact)
             {
-                _renderer.material.color = CreateRandomColor;
+                SetColor(CreateRandomColor);
 
                 _isContact = false;
             }

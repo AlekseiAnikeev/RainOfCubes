@@ -1,61 +1,62 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class Spawner : MonoBehaviour
+public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, IColorable
 {
-    [SerializeField] private Cube _cube;
-    [SerializeField] private int _spawnAmount = 20;
-    [SerializeField] private float _repeatRate = 3f;
+    [SerializeField] private T _prefab;
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
+    [SerializeField] private TextMeshProUGUI _textObjectCreate;
+    [SerializeField] private TextMeshProUGUI _textObjectSpawn;
+    [SerializeField] private TextMeshProUGUI _textObjectActive;
 
-    private readonly float _minCoordinateValue = -5f;
-    private readonly float _maxCoordinateValue = 5f;
+    private ObjectPool<T> _pool;
 
-    private readonly Color _defaultColor = new(0, 0, 0);
-
-    private ObjectPool<Cube> _pool;
+    private int _countObjectCreate;
+    private int _countObjectSpawn;
 
     private void Awake()
     {
-        _pool = new ObjectPool<Cube>(
-            createFunc: () => Instantiate(_cube),
-            actionOnGet: cube => cube.gameObject.SetActive(true),
-            actionOnRelease: cube => cube.gameObject.SetActive(false),
-            actionOnDestroy: cube => Destroy(cube.gameObject),
+        _pool = new ObjectPool<T>(
+            createFunc: Create,
+            actionOnGet: prefab => prefab.gameObject.SetActive(true),
+            actionOnRelease: prefab => prefab.gameObject.SetActive(false),
+            actionOnDestroy: prefab => Destroy(prefab.gameObject),
             collectionCheck: false,
             defaultCapacity: _poolCapacity,
             maxSize: _poolMaxSize
         );
     }
 
-    private void Start()
+    private void Update()
     {
-        InvokeRepeating(nameof(Spawn), 0f, _repeatRate);
+        _textObjectSpawn.text = $"Всего создано: {_countObjectSpawn}";
+        _textObjectCreate.text = $"Создано новых: {_countObjectCreate}";
+        _textObjectActive.text = $"Активно: {_pool.CountActive}";
     }
 
-    private void Spawn()
+    protected T GetObject()
     {
-        for (int i = 0; i < _spawnAmount; i++)
-        {
-            var cube = _pool.Get();
-            cube.transform.position = GetPosition();
-            cube.SetColor(_defaultColor);
-            cube.Init(RemoveToPool);
-        }
+        _countObjectSpawn++;
+
+
+        return _pool.Get();
     }
 
-    private Vector3 GetPosition()
+    protected virtual void RemoveToPool(T obj)
     {
-        float coordinateX = Random.Range(_minCoordinateValue, _maxCoordinateValue);
-        float coordinateZ = Random.Range(_minCoordinateValue, _maxCoordinateValue);
-        float coordinateY = 6;
-
-        return new Vector3(coordinateX, coordinateY, coordinateZ);
+        _pool.Release(obj);
     }
 
-    private void RemoveToPool(Cube cube)
+    private T Create()
     {
-        _pool.Release(cube);
+        T obj = Instantiate(_prefab);
+
+        _countObjectCreate++;
+
+
+        return obj;
     }
 }
