@@ -2,10 +2,10 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
-public class Cube : MonoBehaviour, IColorable
+public class Cube : MonoBehaviour
 {
     private readonly Color _defaultColor = new(0, 0, 255);
-    
+
     private bool _isContact = true;
 
     private int _minLifetime = 2;
@@ -23,10 +23,6 @@ public class Cube : MonoBehaviour, IColorable
     public void Init(Action<Cube> contact)
     {
         _contact = contact;
-    }
-
-    public void SetStartColor()
-    {
         _renderer.material.color = _defaultColor;
     }
 
@@ -63,4 +59,5 @@ public class Cube : MonoBehaviour, IColorable
 
     private Color CreateRandomColor =>
         new(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+
 }

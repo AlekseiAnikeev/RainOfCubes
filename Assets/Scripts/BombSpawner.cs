@@ -13,7 +13,6 @@ public class BombSpawner : Spawner<Bomb>
     {
         Bomb bomb = GetObject();
         bomb.transform.position = position;
-        bomb.SetStartColor();
         bomb.Init(RemoveToPool);
     }
 }

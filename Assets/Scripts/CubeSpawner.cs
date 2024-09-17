@@ -1,20 +1,29 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class CubeSpawner : Spawner<Cube>
 {
-    [SerializeField] private int _spawnAmount = 20;
+    [SerializeField] private int _spawnAmount = 1;
     [SerializeField] private float _repeatRate = 3f;
-    
-    public event Action<Vector3> CubeDeactivated;
 
     private readonly float _minCoordinateValue = -5f;
     private readonly float _maxCoordinateValue = 5f;
-    
+
+    private Coroutine _coroutine;
+
+    public event Action<Vector3> CubeDeactivated;
+
     private void Start()
     {
-        InvokeRepeating(nameof(Spawn), 0f, _repeatRate);
+        _coroutine = StartCoroutine(Countdown(_repeatRate));
+    }
+
+    private void OnDisable()
+    {
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
     }
 
     private void Spawn()
@@ -23,7 +32,6 @@ public class CubeSpawner : Spawner<Cube>
         {
             var cube = GetObject();
             cube.transform.position = GetPosition();
-            cube.SetStartColor();
             cube.Init(RemoveToPool);
         }
     }
@@ -31,7 +39,7 @@ public class CubeSpawner : Spawner<Cube>
     private Vector3 GetPosition()
     {
         const float coordinateY = 6;
-        
+
         float coordinateX = Random.Range(_minCoordinateValue, _maxCoordinateValue);
         float coordinateZ = Random.Range(_minCoordinateValue, _maxCoordinateValue);
 
@@ -41,7 +49,19 @@ public class CubeSpawner : Spawner<Cube>
     protected override void RemoveToPool(Cube cube)
     {
         CubeDeactivated?.Invoke(cube.transform.position);
-        
+
         base.RemoveToPool(cube);
+    }
+
+    private IEnumerator Countdown(float delay)
+    {
+        var wait = new WaitForSeconds(delay);
+
+        while (enabled)
+        {
+            Spawn();
+
+            yield return wait;
+        }
     }
 }

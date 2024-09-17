@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Bomb : MonoBehaviour, IColorable
+public class Bomb : MonoBehaviour
 {
     private readonly int _minLifetime = 2;
     private readonly int _maxLifeTime = 6;
-    
+
     [SerializeField] private float _explosionRadius = 20;
     [SerializeField] private float _explosionForce = 200;
 
     private Renderer _renderer;
     private Coroutine _coroutine;
     private Action<Bomb> _contact;
-    
+
     private float _lifeTime;
 
     private void Awake()
@@ -25,18 +25,14 @@ public class Bomb : MonoBehaviour, IColorable
 
     public void Init(Action<Bomb> contact)
     {
+        _renderer.material.color = new(0, 0, 0);
         _lifeTime = UnityEngine.Random.Range(_minLifetime, _maxLifeTime);
         _contact = contact;
-        
+
         Invoke(nameof(RemoveToPool), _lifeTime);
-        
+
         StopAllCoroutines();
         _coroutine = StartCoroutine(Detonation());
-    }
-
-    public void SetStartColor()
-    {
-        _renderer.material.color = new(0, 0, 0);
     }
 
     private void Explode()
