@@ -12,15 +12,29 @@ public class Bomb : MonoBehaviour
     [SerializeField] private float _explosionRadius = 20;
     [SerializeField] private float _explosionForce = 200;
 
+    private float _lifeTime;
+    
     private Renderer _renderer;
-    private Coroutine _coroutine;
+    private Coroutine _detonation;
+    private Coroutine _countdown;
+    
     private Action<Bomb> _contact;
 
-    private float _lifeTime;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
+    }
+
+    private void OnEnable()
+    {
+        StopAllCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        if (_countdown != null)
+            StopCoroutine(_countdown);
     }
 
     public void Init(Action<Bomb> contact)
@@ -29,10 +43,10 @@ public class Bomb : MonoBehaviour
         _lifeTime = UnityEngine.Random.Range(_minLifetime, _maxLifeTime);
         _contact = contact;
 
-        Invoke(nameof(RemoveToPool), _lifeTime);
-
-        StopAllCoroutines();
-        _coroutine = StartCoroutine(Detonation());
+       // Invoke(nameof(RemoveToPool), _lifeTime);
+        _countdown = StartCoroutine(Countdown(_lifeTime));
+        
+        _detonation = StartCoroutine(Detonation());
     }
 
     private void Explode()
@@ -50,6 +64,13 @@ public class Bomb : MonoBehaviour
         units.AddRange(hits.Where(hit => hit.attachedRigidbody != null).Select(hit => hit.attachedRigidbody));
 
         return units;
+    }
+    
+    private IEnumerator Countdown(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        RemoveToPool();
     }
 
     private IEnumerator Detonation()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
@@ -11,24 +12,20 @@ public class Cube : MonoBehaviour
     private int _minLifetime = 2;
     private int _maxLifeTime = 6;
 
+    private Coroutine _countdown;
     private Renderer _renderer;
-    private Action<Cube> _contact;
 
+    private Action<Cube> _contact;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
     }
 
-    public void Init(Action<Cube> contact)
+    private void OnDestroy()
     {
-        _contact = contact;
-        _renderer.material.color = _defaultColor;
-    }
-
-    private void SetColor(Color color)
-    {
-        _renderer.material.color = color;
+        if (_countdown != null)
+            StopCoroutine(_countdown);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -46,8 +43,19 @@ public class Cube : MonoBehaviour
                 return;
             }
 
-            Invoke(nameof(RemoveToPool), UnityEngine.Random.Range(_minLifetime, _maxLifeTime));
+            _countdown = StartCoroutine(Countdown(UnityEngine.Random.Range(_minLifetime, _maxLifeTime)));
         }
+    }
+
+    public void Init(Action<Cube> contact)
+    {
+        _contact = contact;
+        _renderer.material.color = _defaultColor;
+    }
+
+    private void SetColor(Color color)
+    {
+        _renderer.material.color = color;
     }
 
     private void RemoveToPool()
@@ -57,7 +65,13 @@ public class Cube : MonoBehaviour
         _contact(this);
     }
 
+    private IEnumerator Countdown(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        RemoveToPool();
+    }
+
     private Color CreateRandomColor =>
         new(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
-
 }

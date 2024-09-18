@@ -9,11 +9,9 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     [SerializeField] private int _poolMaxSize = 5;
 
     private ObjectPool<T> _pool;
+    private SpawnerCountInfo _countInfo;
 
-    private int _countObjectCreate;
-    private int _countObjectSpawn;
-
-    public event Action<int, int, int> IsCreate;
+    public event Action<SpawnerCountInfo> Created;
 
     private void Awake()
     {
@@ -26,13 +24,16 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
             defaultCapacity: _poolCapacity,
             maxSize: _poolMaxSize
         );
+
+        _countInfo = gameObject.AddComponent<SpawnerCountInfo>();
     }
 
     protected T GetObject()
     {
-        _countObjectSpawn++;
+        _countInfo.SetCountActive(_pool.CountActive);
+        _countInfo.SetTotalСreated();
 
-        IsCreate?.Invoke(_countObjectSpawn, _countObjectCreate, _pool.CountActive);
+        Created?.Invoke(_countInfo);
 
         return _pool.Get();
     }
@@ -44,9 +45,9 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
 
     private T Create()
     {
-        T obj = Instantiate(_prefab);
+        _countInfo.SetNumberNewOnes();
 
-        _countObjectCreate++;
+        T obj = Instantiate(_prefab);
 
         return obj;
     }

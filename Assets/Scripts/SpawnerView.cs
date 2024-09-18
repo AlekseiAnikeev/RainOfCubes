@@ -1,40 +1,27 @@
 using TMPro;
 using UnityEngine;
 
-public class SpawnerView : MonoBehaviour
+public abstract class SpawnerView<T> : MonoBehaviour where T : MonoBehaviour
 {
-    [SerializeField] private Spawner<Cube> _cubeSpawner;
-    [SerializeField] private Spawner<Bomb> _bombSpawner;
-    [SerializeField] private TextMeshProUGUI _textCubeCreate;
-    [SerializeField] private TextMeshProUGUI _textCubeSpawn;
-    [SerializeField] private TextMeshProUGUI _textCubeActive;
-    [SerializeField] private TextMeshProUGUI _textBombCreate;
-    [SerializeField] private TextMeshProUGUI _textBombSpawn;
-    [SerializeField] private TextMeshProUGUI _textBombActive;
+    [SerializeField] private Spawner<T> _objectSpawner;
+    [SerializeField] private TextMeshProUGUI _textObjectCreate;
+    [SerializeField] private TextMeshProUGUI _textObjectSpawn;
+    [SerializeField] private TextMeshProUGUI _textObjectActive;
 
     private void OnEnable()
     {
-        _cubeSpawner.IsCreate += DrawCubeStatistic;
-        _bombSpawner.IsCreate += DrawBombStatistic;
+        _objectSpawner.Created += DrawObjectStatistic;
     }
 
     private void OnDisable()
     {
-        _cubeSpawner.IsCreate -= DrawCubeStatistic;
-        _bombSpawner.IsCreate -= DrawBombStatistic;
+        _objectSpawner.Created -= DrawObjectStatistic;
     }
 
-    private void DrawCubeStatistic(int totalСreated, int numberCreate, int numberActive)
+    private void DrawObjectStatistic(SpawnerCountInfo countInfo)
     {
-        _textCubeCreate.text = $"Создано новых: {numberCreate}";
-        _textCubeSpawn.text = $"Всего создано: {totalСreated}";
-        _textCubeActive.text = $"Активно: {numberActive}";
-    }
-
-    private void DrawBombStatistic(int totalСreated, int numberCreate, int numberActive)
-    {
-        _textBombCreate.text = $"Создано новых: {numberCreate}";
-        _textBombSpawn.text = $"Всего создано: {totalСreated}";
-        _textBombActive.text = $"Активно: {numberActive}";
+        _textObjectSpawn.text = $"Всего создано: {countInfo.TotalСreated}";
+        _textObjectCreate.text = $"Создано новых: {countInfo.NumberNewOnes}";
+        _textObjectActive.text = $"Активно: {countInfo.CountActive}";
     }
 }
