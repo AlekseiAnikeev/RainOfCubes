@@ -26,6 +26,13 @@ public class CubeSpawner : Spawner<Cube>
             StopCoroutine(_coroutine);
     }
 
+    protected override void RemoveToPool(Cube cube)
+    {
+        CubeDeactivated?.Invoke(cube.transform.position);
+
+        base.RemoveToPool(cube);
+    }
+
     private void Spawn()
     {
         for (int i = 0; i < _spawnAmount; i++)
@@ -44,13 +51,6 @@ public class CubeSpawner : Spawner<Cube>
         float coordinateZ = Random.Range(_minCoordinateValue, _maxCoordinateValue);
 
         return new Vector3(coordinateX, coordinateY, coordinateZ);
-    }
-
-    protected override void RemoveToPool(Cube cube)
-    {
-        CubeDeactivated?.Invoke(cube.transform.position);
-
-        base.RemoveToPool(cube);
     }
 
     private IEnumerator Countdown(float delay)

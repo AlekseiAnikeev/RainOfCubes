@@ -6,35 +6,28 @@ using UnityEngine;
 
 public class Bomb : MonoBehaviour
 {
-    private readonly int _minLifetime = 2;
-    private readonly int _maxLifeTime = 6;
-
     [SerializeField] private float _explosionRadius = 20;
     [SerializeField] private float _explosionForce = 200;
+    
+    private readonly int _minLifetime = 2;
+    private readonly int _maxLifeTime = 6;
 
     private float _lifeTime;
     
     private Renderer _renderer;
     private Coroutine _detonation;
-    private Coroutine _countdown;
     
     private Action<Bomb> _contact;
-
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
     }
 
-    private void OnEnable()
-    {
-        StopAllCoroutines();
-    }
-
     private void OnDestroy()
     {
-        if (_countdown != null)
-            StopCoroutine(_countdown);
+        if (_detonation != null)
+            StopCoroutine(_detonation);
     }
 
     public void Init(Action<Bomb> contact)
@@ -42,9 +35,6 @@ public class Bomb : MonoBehaviour
         _renderer.material.color = new(0, 0, 0);
         _lifeTime = UnityEngine.Random.Range(_minLifetime, _maxLifeTime);
         _contact = contact;
-
-       // Invoke(nameof(RemoveToPool), _lifeTime);
-        _countdown = StartCoroutine(Countdown(_lifeTime));
         
         _detonation = StartCoroutine(Detonation());
     }
@@ -65,13 +55,6 @@ public class Bomb : MonoBehaviour
 
         return units;
     }
-    
-    private IEnumerator Countdown(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        
-        RemoveToPool();
-    }
 
     private IEnumerator Detonation()
     {
@@ -89,6 +72,7 @@ public class Bomb : MonoBehaviour
         }
 
         Explode();
+        RemoveToPool();
     }
 
     private void RemoveToPool()

@@ -6,10 +6,15 @@ public class BombSpawner : Spawner<Bomb>
 
     private void Start()
     {
-        _cubeSpawner.CubeDeactivated += Activation;
+        _cubeSpawner.CubeDeactivated += OnActivate;
     }
 
-    private void Activation(Vector3 position)
+    private void OnDisable()
+    {
+        _cubeSpawner.CubeDeactivated -= OnActivate;
+    }
+
+    private void OnActivate(Vector3 position)
     {
         Bomb bomb = GetObject();
         bomb.transform.position = position;

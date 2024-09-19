@@ -37,13 +37,9 @@ public class Cube : MonoBehaviour
                 SetColor(CreateRandomColor);
 
                 _isContact = false;
+                
+                _countdown = StartCoroutine(Countdown(UnityEngine.Random.Range(_minLifetime, _maxLifeTime)));
             }
-            else
-            {
-                return;
-            }
-
-            _countdown = StartCoroutine(Countdown(UnityEngine.Random.Range(_minLifetime, _maxLifeTime)));
         }
     }
 
